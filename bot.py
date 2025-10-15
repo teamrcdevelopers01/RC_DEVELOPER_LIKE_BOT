@@ -36,8 +36,8 @@ DATA_FILE = "data.json"
 CONFIG_FILE = "config.json"
 COOLDOWN_SECONDS = 3
 
+# Default config without the token
 DEFAULT_CONFIG = {
-    "bot_token": "8460634349:AAFOLyhQmy1aSQ5su2y42td4kk5bYu43ssE",
     "channel_link": "https://t.me/+3JG3Dc0VOqs4Y2Y1",
     "owner_username": "@rc_team_01",
     "allowed_group_id": "-1003127041373",
@@ -61,10 +61,6 @@ def save_json_file(path: str, data: Any) -> None:
 
 config = load_json_file(CONFIG_FILE, DEFAULT_CONFIG)
 data_store: Dict[str, Any] = load_json_file(DATA_FILE, {"groups": {}})
-
-env_token = os.getenv("BOT_TOKEN")
-if env_token:
-    config["bot_token"] = env_token
 
 for k, v in DEFAULT_CONFIG.items():
     config.setdefault(k, v)
@@ -160,10 +156,6 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🔹 /like @username — like user\n"
         "🔹 /addlike @username <n> — admin/owner only\n"
         "🔹 /set_api, /set_group, /config\n\n"
-        "Note:\n"
-        "- Group API default: 'API URL YAHA DALO'\n"
-        "- Global allowed_group_id: 'GROUP ID DALO'\n"
-        "- bot_token: '8460634349:AAFOLyhQmy1aSQ5su2y42td4kk5bYu43ssE'\n"
     )
 
     keyboard = InlineKeyboardMarkup([
@@ -245,9 +237,12 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
 # Main
 # -----------------------------
 def main():
-    token = config.get("bot_token")
-    if "8460634349:AAFOLyhQmy1aSQ5su2y42td4kk5bYu43ssE" in (token or ""):
-        logger.error("❌ Bot token placeholder detected. Please replace it with your real token.")
+    # Token ko seedhe Render ke Environment Variable se padho
+    token = os.environ.get('BOT_TOKEN')
+
+    # Agar token nahi mila to error dekar band ho jao
+    if not token:
+        logger.error("❌ BOT_TOKEN environment variable not found. Please set it in Render.")
         return
 
     logger.info("Starting bot... PTB v%s", ptb_version)
@@ -263,3 +258,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
